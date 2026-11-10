@@ -1,1 +1,21 @@
+name: MiniMax Refresh
 
+on:
+  schedule:
+    - cron: "0 23 * * *"   # UTC 23:00 = 北京时间次日 07:00
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call MiniMax API
+        run: |
+          curl -X POST "https://api.minimaxi.com/anthropic/v1/messages" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.MINIMAX_API_KEY }}" \
+            -d '{
+              "model": "MiniMax-M3",
+              "messages": [{"role": "user", "content": "hi"}],
+              "max_tokens": 1
+            }'
