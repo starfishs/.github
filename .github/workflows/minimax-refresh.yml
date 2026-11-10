@@ -9,11 +9,23 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Call MiniMax API
+      - name: Validate MiniMax secret
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         run: |
-          curl -X POST "https://api.minimaxi.com/anthropic/v1/messages" \
+          if [ -z "${MINIMAX_API_KEY}" ]; then
+            echo "MINIMAX_API_KEY is not configured or is unavailable to this workflow."
+            exit 1
+          fi
+
+      - name: Call MiniMax API
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -X POST "https://api.minimaxi.com/anthropic/v1/messages" \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.MINIMAX_API_KEY }}" \
+            -H "Authorization: Bearer ${MINIMAX_API_KEY}" \
             -d '{
               "model": "MiniMax-M3",
               "messages": [{"role": "user", "content": "hi"}],
